@@ -38,7 +38,9 @@ const ChoroplethMap = () => {
 
   return (
     <div>
-      <h1>Geospatial Analysis Dashboard: Cancer Incidence</h1>
+      <h1 style={{ margin: "0", color: "white" }}>
+        Geospatial Analysis Dashboard: Cancer Incidence
+      </h1>
       <Plot
         data={[
           {
