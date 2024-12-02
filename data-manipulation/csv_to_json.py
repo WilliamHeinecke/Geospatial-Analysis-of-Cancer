@@ -16,6 +16,6 @@ def csv_to_json(csv_file_path, json_file_path):
     print(f"CSV file successfully converted to JSON and saved at {json_file_path}")
 
 # Example usage
-csv_file_path = "livercancer_inc_per100k_pop_2015_2019.csv"  # Replace with your CSV file path
-json_file_path = "../react-dashboard/src/data/livercancer_inc_per_100k_pop_2015_2019.json"  # Replace with your desired JSON output file path
+csv_file_path = "combined_dataset.csv"  # Replace with your CSV file path
+json_file_path = "combined_data.json"  # Replace with your desired JSON output file path
 csv_to_json(csv_file_path, json_file_path)
