@@ -26,8 +26,8 @@ const NaiveBayesModel = () => {
     }
     try {
       const response = await axios.post("http://127.0.0.1:8000/predict", {
-        BingeDrinking: parseFloat(inputs.Factor1),
-        CoronaryHeartDisease: parseFloat(inputs.Factor2),
+        AirQuality: parseFloat(inputs.Factor1),
+        BelowPoverty: parseFloat(inputs.Factor2),
         Diabetes: parseFloat(inputs.Factor3),
       });
       console.log("Prediction Response:", response.data);
@@ -39,10 +39,10 @@ const NaiveBayesModel = () => {
   };
   return (
     <div>
-      <h2>Naive Bayes Cancer Prediction</h2>
+      <h2>Linear Regression Cancer Prediction</h2>
       <form onSubmit={handleSubmit}>
         <div>
-          <label>Binge Drinking:</label>
+          <label>Air Quality (pm 2.5 average):</label>
           <input
             type="number"
             name="Factor1"
@@ -51,7 +51,7 @@ const NaiveBayesModel = () => {
           />
         </div>
         <div>
-          <label>Coronary Heart Disease:</label>
+          <label>Below Poverty Percentage:</label>
           <input
             type="number"
             name="Factor2"
@@ -73,7 +73,6 @@ const NaiveBayesModel = () => {
       {prediction !== null && !isNaN(probability) && (
         <div>
           <h3>Prediction: {prediction}</h3>
-          <h3>Probability: {(probability * 100).toFixed(2)}%</h3>
         </div>
       )}
     </div>
