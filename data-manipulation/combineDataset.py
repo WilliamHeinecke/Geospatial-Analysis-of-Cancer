@@ -1,5 +1,10 @@
 import pandas as pd
 
+# much fewer counties have values for air quality which severely reduces the data when using an inner join
+# setting this value to False will not include air quality in the data while setting it to True will add air quality
+#   with an inner join
+include_air_quality = False
+
 # Load the cancer incidence dataset
 cancer_data = pd.read_csv("../geospatial_cancer_data/geospatial_cancer_data/cancer_incidence/liver cancer/livercancer_inc_per100k_pop_2015_2019.csv")
 print(cancer_data.head())
@@ -137,12 +142,13 @@ combined_data = pd.merge(
     on=["StateFIPS", "CountyFIPS"],
     how="inner"
 )
-combined_data = pd.merge(
-    combined_data,
-    air_quality_data_agg,
-    on=["StateFIPS", "CountyFIPS"],
-    how="inner"
-)
+if include_air_quality:
+    combined_data = pd.merge(
+        combined_data,
+        air_quality_data_agg,
+        on=["StateFIPS", "CountyFIPS"],
+        how="inner"
+    )
 # combined_data = pd.merge(
 #     combined_data,
 #     arsenic_data_agg,
