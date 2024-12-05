@@ -4,19 +4,68 @@ import Grid from "@mui/material/Grid2";
 import NaiveBayesModel from "./components/NaiveBayesModel.js";
 import LiverCorrelationDisplay from "./components/LiverCorrolationDisplay.js";
 import StateMapHighestLiverCancer from "./components/StateMapHighestLiverCancer.js";
-import { Typography, Box } from "@mui/material";
+import { Typography, Box, Button } from "@mui/material";
 import InteractiveFactorsMap from "./components/InteractiveFactorsMap.js";
+import React, { useState } from "react";
 
 function App() {
+  const [selectedTab, setSelectedTab] = useState("liver"); // Default tab: Liver Cancer
+
+  // Sidebar Tabs
+  const cancerTabs = {
+    liver: "Liver Cancer",
+    lung: "Lung Cancer",
+  };
+
   return (
     <Grid
       container
       className="App"
-      sx={{ justifyContent: "center", width: "100%", height: "100%" }}
+      sx={{ justifyContent: "space-between", width: "100%", height: "120vh" }}
     >
+      {/* Sidebar */}
       <Grid
-        container
-        className="App"
+        item
+        xs={12}
+        md={2}
+        sx={{
+          backgroundColor: "#333",
+          color: "white",
+          padding: "20px",
+          minHeight: "100vh",
+        }}
+      >
+        <Typography variant="h5" component="h2" gutterBottom>
+          Cancer Dashboard
+        </Typography>
+        <Box sx={{ marginTop: "20px" }}>
+          {Object.keys(cancerTabs).map((key) => (
+            <Button
+              key={key}
+              variant={selectedTab === key ? "contained" : "outlined"}
+              color="primary"
+              onClick={() => setSelectedTab(key)}
+              sx={{
+                display: "block",
+                width: "100%",
+                textAlign: "left",
+                marginBottom: "10px",
+                color: "white",
+                backgroundColor: selectedTab === key ? "#555" : "transparent",
+                borderColor: "#777",
+              }}
+            >
+              {cancerTabs[key]}
+            </Button>
+          ))}
+        </Box>
+      </Grid>
+
+      {/* Main Content */}
+      <Grid
+        item
+        xs={12}
+        md={10}
         sx={{
           height: "100%",
           width: "auto",
@@ -29,9 +78,10 @@ function App() {
         {/* Header */}
         <Grid item xs={12} sx={{ textAlign: "center", marginBottom: "20px" }}>
           <Typography variant="h4" component="h1" gutterBottom>
-            Geospatial Analysis Dashboard: Cancer Incidence
+            Geospatial Analysis Dashboard: {cancerTabs[selectedTab]}
           </Typography>
         </Grid>
+
         {/* Main Section */}
         <Grid container spacing={2} sx={{ marginBottom: "20px" }}>
           {/* Left: Main Map */}
@@ -45,7 +95,7 @@ function App() {
                 padding: "10px",
               }}
             >
-              <MapComponent />
+              <MapComponent selectedTab={selectedTab} />
             </Box>
           </Grid>
           {/* Right: State with Highest Cancer Rate */}
@@ -59,10 +109,11 @@ function App() {
                 padding: "10px",
               }}
             >
-              <StateMapHighestLiverCancer />
+              <StateMapHighestLiverCancer selectedTab={selectedTab} />
             </Box>
           </Grid>
         </Grid>
+
         {/* Bottom Section */}
         <Grid container spacing={2} paddingTop={"10px"}>
           <Grid item xs={12} md={6}>
@@ -75,7 +126,7 @@ function App() {
                 padding: "10px",
               }}
             >
-              <InteractiveFactorsMap />
+              <InteractiveFactorsMap selectedTab={selectedTab} />
             </Box>
           </Grid>
           <Grid item xs={12} md={6}>
@@ -88,7 +139,7 @@ function App() {
                 padding: "10px",
               }}
             >
-              <LiverCorrelationDisplay />
+              <LiverCorrelationDisplay selectedTab={selectedTab} />
             </Box>
           </Grid>
           {/* Naive Bayes Model */}
@@ -102,11 +153,23 @@ function App() {
                 padding: "10px",
               }}
             >
-              <NaiveBayesModel />
+              <NaiveBayesModel selectedTab={selectedTab} />
             </Box>
           </Grid>
         </Grid>
       </Grid>
+      {/* other side bar */}
+      <Grid
+        item
+        xs={12}
+        md={2}
+        sx={{
+          backgroundColor: "inherit",
+          color: "white",
+          padding: "20px",
+          minHeight: "100vh",
+        }}
+      ></Grid>
     </Grid>
   );
 }

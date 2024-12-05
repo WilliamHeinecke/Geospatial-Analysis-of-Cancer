@@ -30,13 +30,13 @@ target = "CancerIncidence"
 df = pd.read_csv("combined_dataset.csv")
 
 features = ["BingeDrinking", "CoronaryHeartDisease", "Diabetes",
-            "Asthma", "Obesity", "BelowPoverty", "Smoking", "AirQuality"]  
+            "Asthma", "Obesity", "BelowPoverty", "Smoking"]  
 
 # Example dataset loading and preprocessing
 def load_and_prepare_data():
     global features
     #X = df[features]
-    X = df[["AirQuality", "BelowPoverty","Diabetes"]]
+    X = df[[ "BelowPoverty","Diabetes"]]
     y = df[target]
     return train_test_split(X, y, test_size=0.2, random_state=42)
 
@@ -79,8 +79,7 @@ def get_highly_correlated_factors(threshold: float = 0.2):
     :param threshold: Correlation threshold (default is 0.5)
     """
     required_columns = ["BingeDrinking", "CoronaryHeartDisease", "Diabetes",
-                        "Asthma", "Obesity", "BelowPoverty", "Smoking",
-                        "AirQuality", "CancerIncidence"]
+                        "Asthma", "Obesity", "BelowPoverty", "Smoking", "CancerIncidence"]
     df_copy = df[required_columns]
     df_copy = df_copy.select_dtypes(include=["float64", "int64"])
     correlation_matrix = df_copy.corr()
@@ -127,7 +126,8 @@ def get_overlay_data(factor: str = Query(..., description="Factor to overlay")):
         return {"error": f"Invalid factor. Available factors: {', '.join(features)}"}
     
     # Prepare data with countyFIPS
-    data = df[["countyFIPS", "County", "State", factor]].dropna().to_dict(orient="records")
+    data = df[["CountyFIPS", "County", "State", factor]].dropna().to_dict(orient="records")
+    print(data)
     return {"factor": factor, "data": data}
 
 # Initialize and train the model on startup

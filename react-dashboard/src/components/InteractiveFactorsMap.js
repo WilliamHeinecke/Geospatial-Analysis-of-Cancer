@@ -1,120 +1,108 @@
-import React, { useState, useEffect } from "react";
-import { MapContainer, TileLayer, GeoJSON } from "react-leaflet";
-import "leaflet/dist/leaflet.css";
+import React, { useEffect, useState } from "react";
+import Plot from "react-plotly.js";
 import axios from "axios";
-import { FormControl, MenuItem, Select, Box, Typography } from "@mui/material";
 
-const InteractiveCountyMap = () => {
-  const [geoJsonData, setGeoJsonData] = useState(null); // GeoJSON of counties
-  const [overlayData, setOverlayData] = useState([]); // Data for overlay
-  const [selectedFactor, setSelectedFactor] = useState("Smoking"); // Default factor
+const InteractiveFactorsMap = () => {
+  const [overlayData, setOverlayData] = useState([]);
+  const [geoJson, setGeoJson] = useState(null);
+  const [selectedFactor, setSelectedFactor] = useState("Diabetes"); // Default factor
   const [availableFactors] = useState([
     "Smoking",
     "Obesity",
-    "AirQuality",
     "BingeDrinking",
+    "Diabetes",
   ]);
 
-  // Fetch GeoJSON data for counties
+  // Fetch GeoJSON and overlay data
   useEffect(() => {
-    const fetchGeoJson = async () => {
-      const response = await axios.get(
+    // Fetch GeoJSON
+    axios
+      .get(
         "https://raw.githubusercontent.com/plotly/datasets/master/geojson-counties-fips.json"
-      );
-      setGeoJsonData(response.data);
-    };
+      )
+      .then((response) => setGeoJson(response.data))
+      .catch((error) => console.error("Error loading GeoJSON:", error));
 
-    fetchGeoJson();
-  }, []);
-
-  // Fetch overlay data for the selected factor
-  useEffect(() => {
-    const fetchOverlayData = async () => {
-      try {
-        const response = await axios.get("http://127.0.0.1:8000/overlay-data", {
-          params: { factor: selectedFactor },
-        });
-        setOverlayData(response.data.data);
-      } catch (error) {
-        console.error("Error fetching overlay data:", error);
-      }
-    };
-
-    fetchOverlayData();
+    // Fetch overlay data
+    axios
+      .get("http://127.0.0.1:8000/overlay-data", {
+        params: { factor: selectedFactor },
+      })
+      .then((response) => {
+        const processedData = response.data.data.map((item) => ({
+          ...item,
+          CountyFIPS: item.CountyFIPS.toString().padStart(5, "0"), // Convert FIPS to 5-digit string
+          Value: parseFloat(item[selectedFactor]), // Ensure Value is a number
+        }));
+        setOverlayData(processedData);
+      })
+      .catch((error) => console.error("Error loading overlay data:", error));
   }, [selectedFactor]);
 
-  const handleFactorChange = (event) => {
-    setSelectedFactor(event.target.value);
-  };
+  if (!overlayData.length || !geoJson) {
+    return <div>Loading...</div>;
+  }
 
-  // Match overlay data to GeoJSON by countyFIPS
-  const onEachFeature = (feature, layer) => {
-    const countyFIPS = feature.id; // FIPS code from GeoJSON
-    const countyData = overlayData.find(
-      (item) => item.countyFIPS === countyFIPS
-    );
-
-    // Add tooltip with factor value
-    layer.bindTooltip(
-      countyData
-        ? `${countyData.County}, ${countyData.State}: ${countyData[selectedFactor]}`
-        : "No data available",
-      { sticky: true }
-    );
-
-    // Style counties dynamically
-    layer.setStyle({
-      fillColor: countyData ? getColor(countyData[selectedFactor]) : "#ccc",
-      fillOpacity: 0.7,
-      color: "#000",
-      weight: 0.5,
-    });
-  };
-
-  // Define color scale
-  const getColor = (value) => {
-    if (!value) return "#ccc";
-    if (value > 30) return "#800026";
-    if (value > 20) return "#BD0026";
-    if (value > 10) return "#E31A1C";
-    if (value > 5) return "#FD8D3C";
-    return "#FFEDA0";
-  };
+  const fipsCodes = overlayData.map((item) => item.CountyFIPS);
+  const values = overlayData.map((item) => item.Value);
 
   return (
-    <div>
-      <Box sx={{ marginBottom: "20px", textAlign: "center" }}>
-        <Typography variant="h6">Select Factor to Overlay</Typography>
-        <FormControl>
-          <Select
-            value={selectedFactor}
-            onChange={handleFactorChange}
-            sx={{ backgroundColor: "white", color: "black", minWidth: "150px" }}
-          >
-            {availableFactors.map((factor) => (
-              <MenuItem key={factor} value={factor}>
-                {factor}
-              </MenuItem>
-            ))}
-          </Select>
-        </FormControl>
-      </Box>
-
-      <MapContainer
-        style={{ height: "450px", width: "700px" }}
-        center={[37.8, -96]} // Center of the US
-        zoom={4}
-      >
-        <TileLayer
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-          attribution="&copy; OpenStreetMap contributors"
-        />
-        {geoJsonData && (
-          <GeoJSON data={geoJsonData} onEachFeature={onEachFeature} />
-        )}
-      </MapContainer>
+    <div
+      style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+    >
+      <h1 style={{ margin: "10px 0", color: "white" }}>
+        Geospatial Analysis Dashboard: {selectedFactor}
+      </h1>
+      <div style={{ marginBottom: "10px", textAlign: "center" }}>
+        <label
+          style={{ color: "white", fontWeight: "bold", marginRight: "10px" }}
+        >
+          Select Factor:
+        </label>
+        <select
+          value={selectedFactor}
+          onChange={(e) => setSelectedFactor(e.target.value)}
+          style={{ padding: "5px", fontSize: "16px" }}
+        >
+          {availableFactors.map((factor) => (
+            <option key={factor} value={factor}>
+              {factor}
+            </option>
+          ))}
+        </select>
+      </div>
+      <Plot
+        data={[
+          {
+            type: "choroplethmapbox",
+            geojson: geoJson,
+            locations: fipsCodes,
+            z: values,
+            colorscale: "Viridis",
+            colorbar: {
+              title: selectedFactor,
+              thickness: 20,
+            },
+          },
+        ]}
+        layout={{
+          mapbox: {
+            style: "carto-positron",
+            center: { lon: -95.7129, lat: 37.0902 },
+            zoom: 3,
+          },
+          title: `${selectedFactor} by County`,
+          autosize: true,
+          margin: { l: 0, r: 0, t: 30, b: 0 }, // Reduced margins
+        }}
+        useResizeHandler={true}
+        style={{ width: "700px", height: "450px" }} // Adjust map to take up most of the available space
+        config={{
+          mapboxAccessToken: "your-mapbox-access-token", // Replace with your Mapbox token
+        }}
+      />
     </div>
   );
 };
 
-export default InteractiveCountyMap;
+export default InteractiveFactorsMap;

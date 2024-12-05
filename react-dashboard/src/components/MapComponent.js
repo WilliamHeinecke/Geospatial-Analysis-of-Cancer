@@ -2,14 +2,20 @@ import React, { useEffect, useState } from "react";
 import Plot from "react-plotly.js";
 import axios from "axios";
 
-const ChoroplethMap = () => {
+const MapComponent = ({ selectedTab }) => {
   const [data, setData] = useState([]);
   const [geoJson, setGeoJson] = useState(null);
 
   useEffect(() => {
     // Fetch cancer data JSON from the public/data folder
+    let path =
+      selectedTab === "liver"
+        ? "/data/livercancer_inc_per_100k_pop_2015_2019.json"
+        : "/data/Lung_dataset.json";
+    console.log("selected tab:", selectedTab);
+    console.log("path:", path);
     axios
-      .get("/data/livercancer_inc_per_100k_pop_2015_2019.json")
+      .get(path)
       .then((response) => {
         const processedData = response.data.map((item) => ({
           ...item,
@@ -27,7 +33,7 @@ const ChoroplethMap = () => {
       )
       .then((response) => setGeoJson(response.data))
       .catch((error) => console.error("Error loading GeoJSON:", error));
-  }, []);
+  }, [selectedTab]);
 
   if (!data.length || !geoJson) {
     return <div>Loading...</div>;
@@ -39,7 +45,7 @@ const ChoroplethMap = () => {
   return (
     <div>
       <h1 style={{ margin: "0", color: "white" }}>
-        Geospatial Analysis Dashboard: Cancer Incidence
+        {selectedTab} Cancer Incidence Map
       </h1>
       <Plot
         data={[
@@ -62,10 +68,17 @@ const ChoroplethMap = () => {
             zoom: 3,
           },
           title: "Cancer Incidence by County",
+          autosize: true,
+          margin: { l: 0, r: 0, t: 30, b: 0 }, // Reduced margins
+        }}
+        useResizeHandler={true}
+        style={{ width: "700px", height: "450px" }} // Adjust map to take up most of the available space
+        config={{
+          mapboxAccessToken: "your-mapbox-access-token", // Replace with your Mapbox token
         }}
       />
     </div>
   );
 };
 
-export default ChoroplethMap;
+export default MapComponent;
