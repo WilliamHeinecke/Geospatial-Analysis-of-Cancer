@@ -29,8 +29,8 @@ ChartJS.register(
   Legend
 );
 
-const LiverCorrolationDisplay = () => {
-  const [threshold, setThreshold] = useState(0.1); // Default correlation threshold
+const LiverCorrolationDisplay = ({ selectedTab }) => {
+  const [threshold, setThreshold] = useState(0.15); // Default correlation threshold
   const [correlations, setCorrelations] = useState({});
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -40,9 +40,12 @@ const LiverCorrolationDisplay = () => {
     const fetchCorrelations = async () => {
       setLoading(true);
       setError("");
-
+      let path =
+        selectedTab === "liver"
+          ? "http://127.0.0.1:8000/correlations"
+          : "http://127.0.0.1:8000/lung/correlations";
       try {
-        const response = await axios.get("http://127.0.0.1:8000/correlations", {
+        const response = await axios.get(path, {
           params: { threshold },
         });
         setCorrelations(response.data.highly_correlated_factors);
@@ -54,7 +57,7 @@ const LiverCorrolationDisplay = () => {
     };
 
     fetchCorrelations();
-  }, [threshold]); // Re-fetch when threshold changes
+  }, [threshold, selectedTab]); // Re-fetch when threshold changes
 
   // Handle text input change
   const handleInputChange = (event) => {

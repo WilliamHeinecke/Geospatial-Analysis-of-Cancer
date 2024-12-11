@@ -11,6 +11,7 @@ const InteractiveFactorsMap = () => {
     "Obesity",
     "BingeDrinking",
     "Diabetes",
+    "Asthma",
   ]);
 
   // Fetch GeoJSON and overlay data
@@ -51,7 +52,7 @@ const InteractiveFactorsMap = () => {
       style={{ display: "flex", flexDirection: "column", alignItems: "center" }}
     >
       <h1 style={{ margin: "10px 0", color: "white" }}>
-        Geospatial Analysis Dashboard: {selectedFactor}
+        Factor Map: {selectedFactor}
       </h1>
       <div style={{ marginBottom: "10px", textAlign: "center" }}>
         <label

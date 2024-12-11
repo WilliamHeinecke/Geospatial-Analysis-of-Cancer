@@ -4,19 +4,20 @@ import "leaflet/dist/leaflet.css";
 import axios from "axios";
 import { Modal, Box, Typography, Button } from "@mui/material";
 
-const StateMapHighestLiverCancer = () => {
+const StateMapHighestLiverCancer = ({ selectedTab }) => {
   const [geoJsonData, setGeoJsonData] = useState(null);
   const [highestStateData, setHighestStateData] = useState(null);
   const [modalData, setModalData] = useState(null);
   const [mapCenter, setMapCenter] = useState([37.8, -96]); // Center of the US
   const [mapZoom, setMapZoom] = useState(4);
+  const [mapKey, setMapKey] = useState("liver");
 
   useEffect(() => {
     const fetchData = async () => {
       try {
         // Fetch the state with the highest average cancer rate
         const stateResponse = await axios.get(
-          "http://127.0.0.1:8000/highest-cancer-rate"
+          "http://127.0.0.1:8000/" + selectedTab + "/highest-cancer-rate"
         );
         setHighestStateData(stateResponse.data);
 
@@ -44,17 +45,18 @@ const StateMapHighestLiverCancer = () => {
         };
 
         setGeoJsonData(updatedGeoJson);
+        setMapKey(selectedTab);
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     };
 
     fetchData();
-  }, []);
+  }, [selectedTab]);
 
   const onEachFeature = (feature, layer) => {
     const { name, isHighlighted } = feature.properties;
-
+    console.log("in each feature");
     // Bind tooltip with state name and highlight info
     layer.bindTooltip(
       `${name}${isHighlighted ? " (Highest Cancer Rate)" : ""}`,
@@ -97,7 +99,7 @@ const StateMapHighestLiverCancer = () => {
         alignItems: "center",
       }}
     >
-      <h2>State With The Highest Average Cancer Rate</h2>
+      <h2>State With The Highest Average {selectedTab} Cancer Rate</h2>
       <p>
         <strong>{highestStateData.state_with_highest_rate}</strong> with an
         average rate of{" "}
@@ -121,7 +123,11 @@ const StateMapHighestLiverCancer = () => {
           url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
           attribution="&copy; OpenStreetMap contributors"
         />
-        <GeoJSON data={geoJsonData} onEachFeature={onEachFeature} />
+        <GeoJSON
+          key={mapKey + "key"}
+          data={geoJsonData}
+          onEachFeature={onEachFeature}
+        />
       </MapContainer>
 
       {/* Modal for displaying state details */}

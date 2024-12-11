@@ -1,7 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 
-const NaiveBayesModel = () => {
+const NaiveBayesModel = ({ selectedTab }) => {
   const [inputs, setInputs] = useState({
     Factor1: "1",
     Factor2: "1",
@@ -25,11 +25,20 @@ const NaiveBayesModel = () => {
       return;
     }
     try {
-      const response = await axios.post("http://127.0.0.1:8000/predict", {
-        AirQuality: parseFloat(inputs.Factor1),
-        BelowPoverty: parseFloat(inputs.Factor2),
-        Diabetes: parseFloat(inputs.Factor3),
-      });
+      let response = null;
+      if (selectedTab === "liver") {
+        response = await axios.post("http://127.0.0.1:8000/predict", {
+          //AirQuality: parseFloat(inputs.Factor1),
+          BelowPoverty: parseFloat(inputs.Factor2),
+          Diabetes: parseFloat(inputs.Factor3),
+        });
+      } else if (selectedTab === "lung") {
+        response = await axios.post("http://127.0.0.1:8000/lung/predict", {
+          Smoking: parseFloat(inputs.Factor1),
+          Asthma: parseFloat(inputs.Factor2),
+          Obesity: parseFloat(inputs.Factor3),
+        });
+      }
       console.log("Prediction Response:", response.data);
       setPrediction(response.data.prediction || "N/A");
       setProbability(response.data.probability || 0);
@@ -41,17 +50,27 @@ const NaiveBayesModel = () => {
     <div>
       <h2>Linear Regression Cancer Prediction</h2>
       <form onSubmit={handleSubmit}>
+        {selectedTab === "lung" ? (
+          <div>
+            <label>
+              {selectedTab === "liver"
+                ? "Air Quality (pm 2.5 average):"
+                : "Smoking:"}
+            </label>
+            <input
+              type="number"
+              name="Factor1"
+              //value={inputs.Factor1}
+              onChange={handleInputChange}
+            />
+          </div>
+        ) : (
+          <></>
+        )}
         <div>
-          <label>Air Quality (pm 2.5 average):</label>
-          <input
-            type="number"
-            name="Factor1"
-            //value={inputs.Factor1}
-            onChange={handleInputChange}
-          />
-        </div>
-        <div>
-          <label>Below Poverty Percentage:</label>
+          <label>
+            {selectedTab === "liver" ? "Below Poverty Percentage:" : "Asthma"}
+          </label>
           <input
             type="number"
             name="Factor2"
@@ -60,7 +79,7 @@ const NaiveBayesModel = () => {
           />
         </div>
         <div>
-          <label>Diabetes:</label>
+          <label>{selectedTab === "liver" ? "Diabetes:" : "Obesity"}</label>
           <input
             type="number"
             name="Factor3"

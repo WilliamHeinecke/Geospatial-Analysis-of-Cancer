@@ -21,7 +21,7 @@ function App() {
     <Grid
       container
       className="App"
-      sx={{ justifyContent: "space-between", width: "100%", height: "120vh" }}
+      sx={{ justifyContent: "space-between", width: "100%", height: "auto" }}
     >
       {/* Sidebar */}
       <Grid
