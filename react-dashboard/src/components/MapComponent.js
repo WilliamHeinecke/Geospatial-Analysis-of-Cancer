@@ -69,10 +69,10 @@ const MapComponent = ({ selectedTab }) => {
           },
           title: "Cancer Incidence by County",
           autosize: true,
-          margin: { l: 0, r: 0, t: 30, b: 0 }, // Reduced margins
+          margin: { l: 0, r: 0, t: 30, b: 0 },
         }}
         useResizeHandler={true}
-        style={{ width: "700px", height: "450px" }} // Adjust map to take up most of the available space
+        style={{ width: "700px", height: "450px" }}
         config={{
           mapboxAccessToken: "your-mapbox-access-token", // Replace with your Mapbox token
         }}

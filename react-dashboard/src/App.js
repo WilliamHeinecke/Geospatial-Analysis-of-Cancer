@@ -142,7 +142,7 @@ function App() {
               <LiverCorrelationDisplay selectedTab={selectedTab} />
             </Box>
           </Grid>
-          {/* Naive Bayes Model */}
+          {/* Linear Regression */}
           <Grid item xs={12} md={6}>
             <Box
               sx={{

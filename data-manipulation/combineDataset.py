@@ -37,8 +37,6 @@ print(arsenic_data.head())
 # Ensure CountyFIPS is a 5-digit string
 cancer_data["CountyFIPS"] = cancer_data["CountyFIPS"].astype(str).str.zfill(5)
 
-# Preprocess the factor dataset
-# Ensure CountyFIPS is a 5-digit string
 binge_drinking_data["CountyFIPS"] = binge_drinking_data["CountyFIPS"].astype(str).str.zfill(5)
 coronary_disease_data["CountyFIPS"] = coronary_disease_data["CountyFIPS"].astype(str).str.zfill(5)
 diabetes_data["CountyFIPS"] = diabetes_data["CountyFIPS"].astype(str).str.zfill(5)
@@ -149,13 +147,6 @@ if include_air_quality:
         on=["StateFIPS", "CountyFIPS"],
         how="inner"
     )
-# combined_data = pd.merge(
-#     combined_data,
-#     arsenic_data_agg,
-#     on=["StateFIPS", "CountyFIPS"],
-#     how="inner"
-# )
-# Rename columns for clarity
 #combined_data.rename(columns={"Value": "Factor Value"}, inplace=True)
 combined_data["CancerIncidence"] = pd.to_numeric(combined_data["CancerIncidence"], errors="coerce")
 combined_data.dropna(subset=["CancerIncidence"], inplace=True)
